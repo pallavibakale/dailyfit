@@ -119,21 +119,21 @@ const MobileMenu = styled.ul`
   top: 80px;
   right: 0;
   transition: all 0.6s ease-in-out;
-  transform: ${({ isOpen }) =>
-    isOpen ? "translateY(0)" : "translateY(-100%)"};
+  transform: ${({ open }) =>
+    open ? "translateY(0)" : "translateY(-100%)"};
   border-radius: 0 0 20px 20px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-  opacity: ${({ isOpen }) => (isOpen ? "100%" : "0")};
-  z-index: ${({ isOpen }) => (isOpen ? "1000" : "-1000")};
+  opacity: ${({ open }) => (open ? "100%" : "0")};
+  z-index: ${({ open }) => (open ? "1000" : "-1000")};
 `;
 
 const Navbar = ({ currentUser }) => {
   const dispatch = useDispatch();
-  const [isOpen, setisOpen] = useState(false);
+  const [open, setisOpen] = useState(false);
   return (
     <Nav>
       <NavContainer>
-        <Mobileicon onClick={() => setisOpen(!isOpen)}>
+        <Mobileicon onClick={() => setisOpen(!open)}>
           <MenuRounded sx={{ color: "inherit" }} />
         </Mobileicon>
         <NavLogo to="/">
@@ -141,7 +141,7 @@ const Navbar = ({ currentUser }) => {
           DailyFit
         </NavLogo>
 
-        <MobileMenu isOpen={isOpen}>
+        <MobileMenu open={open}>
           <Navlink to="/">Dashboard</Navlink>
           <Navlink to="/workouts">Workouts</Navlink>
           {/* <Navlink to="/tutorials">Tutorials</Navlink>
