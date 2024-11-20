@@ -222,85 +222,104 @@ export const addWorkout = async (req, res, next) => {
   try {
     const userId = req.user?.id;
     const { workoutString } = req.body;
+
+    // Check if the workout string is provided
     if (!workoutString) {
-      return next(createError(400, "Workout string is missing"));
-    }
-    // Split workoutString into lines
-    const eachworkout = workoutString.split(";").map((line) => line.trim());
-    // Check if any workouts start with "#" to indicate categories
-    const categories = eachworkout.filter((line) => line.startsWith("#"));
-    if (categories.length === 0) {
-      return next(createError(400, "No categories found in workout string"));
+      return res.status(400).json({ message: "Workout string is missing" });
     }
 
+    console.log('Received workoutString:', workoutString); // Debug log
+
+    // Split workoutString into individual lines, remove empty lines, and trim each line
+    const eachworkout = workoutString.split("\n").map((line) => line.trim()).filter(line => line);
+    console.log('Parsed workout lines:', eachworkout); // Debug log
+
+    // Initialize an array to hold parsed workouts
     const parsedWorkouts = [];
     let currentCategory = "";
     let count = 0;
 
     // Loop through each line to parse workout details
-    await eachworkout.forEach((line) => {
+    for (const line of eachworkout) {
       count++;
+      console.log('Processing line:', line); // Debug log
+
+      // Check for categories (lines starting with "#")
       if (line.startsWith("#")) {
-        const parts = line?.split("\n").map((part) => part.trim());
-        console.log(parts);
-        if (parts.length < 5) {
-          return next(
-            createError(400, `Workout string is missing for ${count}th workout`)
-          );
-        }
+        // Update the current category based on the line
+        currentCategory = line.substring(1).trim(); // Remove "#" and trim spaces
+        console.log('Current Category:', currentCategory); // Debug log
 
-        // Update current category
-        currentCategory = parts[0].substring(1).trim();
-        // Extract workout details
-        const workoutDetails = parseWorkoutLine(parts);
-        if (workoutDetails == null) {
-          return next(createError(400, "Please enter in proper format "));
-        }
-
-        if (workoutDetails) {
-          // Add category to workout details
-          workoutDetails.category = currentCategory;
-          parsedWorkouts.push(workoutDetails);
-        }
       } else {
-        return next(
-          createError(400, `Workout string is missing for ${count}th workout`)
-        );
+        // If no category is set yet, we cannot proceed with workout details
+        if (!currentCategory) {
+          return res.status(400).json({ message: `Category is missing for the ${count}th workout` });
+        }
+
+        // Parse the workout details from the line
+        const workoutDetails = parseWorkoutLine(line); // Call your function to parse the details
+        
+        if (!workoutDetails) {
+          return res.status(400).json({ message: `Invalid format for workout line at ${count}` });
+        }
+
+        // Add category to workout details and push to parsed workouts array
+        workoutDetails.category = currentCategory;
+        workoutDetails.user = userId; // Add the user ID to the workout
+        parsedWorkouts.push(workoutDetails);
+      }
+    }
+
+    console.log('Parsed Workouts:', parsedWorkouts); // Debug log
+
+    // Now, calculate calories for each workout and save to the database
+    const workoutsToCreate = parsedWorkouts.map(async (workout) => {
+      try {
+        // Calculate calories burned (replace with actual logic)
+        workout.caloriesBurned = parseFloat(calculateCaloriesBurnt(workout)); // Ensure calculateCaloriesBurnt is working correctly
+        // Save to database
+        const newWorkout = await Workout.create({ ...workout });
+        console.log('Workout created:', newWorkout); // Debug log for created workout
+      } catch (dbError) {
+        console.error('Error creating workout in database:', dbError); // Log database error
+        throw new Error('Error saving workout to database');
       }
     });
 
-    // Calculate calories burnt for each workout
-    await parsedWorkouts.forEach(async (workout) => {
-      workout.caloriesBurned = parseFloat(calculateCaloriesBurnt(workout));
-      await Workout.create({ ...workout, user: userId });
-    });
+    // Wait for all workout creations to complete
+    await Promise.all(workoutsToCreate);
 
     return res.status(201).json({
       message: "Workouts added successfully",
       workouts: parsedWorkouts,
     });
+
   } catch (err) {
-    next(err);
+    console.error('Internal Server Error:', err); // Log any unexpected errors
+    return res.status(500).json({ message: "An error occurred", error: err.message });
   }
 };
 
-// Function to parse workout details from a line
-const parseWorkoutLine = (parts) => {
-  const details = {};
-  console.log(parts);
-  if (parts.length >= 5) {
-    details.workoutName = parts[1].substring(1).trim();
-    details.sets = parseInt(parts[2].split("sets")[0].substring(1).trim());
-    details.reps = parseInt(
-      parts[2].split("sets")[1].split("reps")[0].substring(1).trim()
-    );
-    details.weight = parseFloat(parts[3].split("kg")[0].substring(1).trim());
-    details.duration = parseFloat(parts[4].split("min")[0].substring(1).trim());
-    console.log(details);
-    return details;
-  }
-  return null;
-};
+// Dummy example of the `parseWorkoutLine` function
+function parseWorkoutLine(line) {
+  // Here, you need to extract the actual workout details from the line
+  // Example: parsing numbers, weights, or times from the line
+  const parts = line.split("-").map(part => part.trim()).filter(part => part); // Split on dash and clean up
+
+  // Ensure there's at least one detail
+  if (parts.length < 1) return null;
+
+  // Example: Return a basic workout object with a name and details (you can extend this logic based on your actual input format)
+  return {
+    workoutName: parts[0], // Workout name or type
+    sets: parts[1] ? parseInt(parts[1]) : null, // Example, parse sets (adjust based on actual format)
+    reps: parts[2] ? parseInt(parts[2]) : null, // Parse reps
+    weight: parts[3] ? parseFloat(parts[3]) : null, // Parse weight (ensure correct unit handling)
+    duration: parts[4] ? parseInt(parts[4]) : null, // Parse duration (time)
+  };
+}
+
+
 
 // Function to calculate calories burnt for a workout
 const calculateCaloriesBurnt = (workoutDetails) => {
