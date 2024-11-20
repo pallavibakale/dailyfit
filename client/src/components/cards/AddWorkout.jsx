@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
-import TextInput from "./TextInput";
-import Button from "./Button";
+import TextInput from "../TextInput";
+import Button from "../Button";
 
 const Card = styled.div`
   flex: 1;
