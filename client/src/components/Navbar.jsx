@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import LogoImg from "../utils/images/Logo.png";
+import LogoImg from "../utils/Images/Logo.png";
 import { Link as LinkR, NavLink } from "react-router-dom";
 import { MenuRounded } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
@@ -119,21 +119,21 @@ const MobileMenu = styled.ul`
   top: 80px;
   right: 0;
   transition: all 0.6s ease-in-out;
-  transform: ${({ open }) =>
-    open ? "translateY(0)" : "translateY(-100%)"};
+  transform: ${({ isOpen }) =>
+    isOpen ? "translateY(0)" : "translateY(-100%)"};
   border-radius: 0 0 20px 20px;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
-  opacity: ${({ open }) => (open ? "100%" : "0")};
-  z-index: ${({ open }) => (open ? "1000" : "-1000")};
+  opacity: ${({ isOpen }) => (isOpen ? "100%" : "0")};
+  z-index: ${({ isOpen }) => (isOpen ? "1000" : "-1000")};
 `;
 
 const Navbar = ({ currentUser }) => {
   const dispatch = useDispatch();
-  const [open, setisOpen] = useState(false);
+  const [isOpen, setisOpen] = useState(false);
   return (
     <Nav>
       <NavContainer>
-        <Mobileicon onClick={() => setisOpen(!open)}>
+        <Mobileicon onClick={() => setisOpen(!isOpen)}>
           <MenuRounded sx={{ color: "inherit" }} />
         </Mobileicon>
         <NavLogo to="/">
@@ -141,19 +141,16 @@ const Navbar = ({ currentUser }) => {
           DailyFit
         </NavLogo>
 
-        <MobileMenu open={open}>
+        <MobileMenu isOpen={isOpen}>
           <Navlink to="/">Dashboard</Navlink>
           <Navlink to="/workouts">Workouts</Navlink>
-          {/* <Navlink to="/tutorials">Tutorials</Navlink>
-          <Navlink to="/blogs">Blogs</Navlink> */}
           <Navlink to="/contact">Contact</Navlink>
         </MobileMenu>
 
         <NavItems>
           <Navlink to="/">Dashboard</Navlink>
           <Navlink to="/workouts">Workouts</Navlink>
-          {/* <Navlink to="/tutorials">Tutorials</Navlink>
-          <Navlink to="/blogs">Blogs</Navlink> */}
+
           <Navlink to="/contact">Contact</Navlink>
         </NavItems>
 

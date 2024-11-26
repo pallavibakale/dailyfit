@@ -10,11 +10,11 @@ export const userSlice = createSlice({
   reducers: {
     loginSuccess: (state, action) => {
       state.currentUser = action.payload.user;
-      localStorage.setItem("dailyFit-app-token", action.payload.token);
+      localStorage.setItem("dailyfit-app-token", action.payload.token);
     },
     logout: (state) => {
       state.currentUser = null;
-      localStorage.removeItem("dailyFit-app-token");
+      localStorage.removeItem("dailyfit-app-token");
     },
   },
 });
