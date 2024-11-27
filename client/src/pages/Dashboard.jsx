@@ -79,7 +79,6 @@ const Dashboard = () => {
     const token = localStorage.getItem("dailyfit-app-token");
     await getDashboardDetails(token).then((res) => {
       setData(res.data);
-      console.log(res.data);
       setLoading(false);
     });
   };
