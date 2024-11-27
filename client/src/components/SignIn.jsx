@@ -39,7 +39,7 @@ const SignIn = () => {
     return true;
   };
 
-  const handelSignIn = async () => {
+  const handleSignIn = async () => {
     setLoading(true);
     setButtonDisabled(true);
     if (validateInputs()) {
@@ -86,7 +86,7 @@ const SignIn = () => {
         />
         <Button
           text="SignIn"
-          onClick={handelSignIn}
+          onClick={handleSignIn}
           isLoading={loading}
           isDisabled={buttonDisabled}
         />

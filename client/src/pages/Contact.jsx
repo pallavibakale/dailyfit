@@ -12,9 +12,7 @@ const Image = styled.img`
 const Contact = () => {
   return (
     <Container style={{display:'flex',flexDirection:'row',padding:'20px',margin:'30px auto',boxShadow:'10px 10px 5px #aaaaaa',borderRadius:'25px'}}>
-        {/* <Title>Contact Us</Title> */}
-        <Container style={{display:'flex',alignItems:'center',margin:'20px',maxWidth:'80%'}}>
-            
+        <Container style={{display:'flex',alignItems:'center',margin:'20px',maxWidth:'80%'}}> 
             <form>
                 <label style={{fontWeight:'bold'}}>Name</label><br/>
                 <input placeholder='Enter Your Name' 

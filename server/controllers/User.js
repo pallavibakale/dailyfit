@@ -39,24 +39,38 @@ export const UserRegister = async (req, res, next) => {
 export const UserLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    const user = await User.findOne({ email: email });
-    // Check if user exists
+    const user = await User.findOne({ email });
     if (!user) {
       return next(createError(404, "User not found"));
     }
-    console.log(user);
-    // Check if password is correct
-    const isPasswordCorrect = await bcrypt.compareSync(password, user.password);
+    const isPasswordCorrect = bcrypt.compareSync(password, user.password);
     if (!isPasswordCorrect) {
       return next(createError(403, "Incorrect password"));
     }
-
     const token = jwt.sign({ id: user._id }, process.env.JWT, {
-      expiresIn: "9999 years",
+      expiresIn: "7d", 
     });
 
+    // If the user is admin, return all users
+    if (user.name === "admin") {
+      res.status(200).json({ token, user });
+      return adminPortal(req, res, next);
+    }
     return res.status(200).json({ token, user });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const adminPortal = async (req, res, next) => {
+  try {    
+    const userId = req.user?.id;
+    const user = await User.findById(userId);
+    if (!user || user.name !== "admin") {
+      return next(createError(403, "Access denied. Admins only."));
+    }
+    const users = await User.find();
+    return res.status(200).json({ users });
   } catch (error) {
     return next(error);
   }

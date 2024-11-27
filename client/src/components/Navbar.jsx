@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import LogoImg from "../utils/Images/Logo.png";
-import { Link as LinkR, NavLink } from "react-router-dom";
+import { Link as LinkR, NavLink, useNavigate } from "react-router-dom";
 import { MenuRounded } from "@mui/icons-material";
 import { Avatar } from "@mui/material";
 import { useDispatch } from "react-redux";
@@ -129,37 +129,54 @@ const MobileMenu = styled.ul`
 
 const Navbar = ({ currentUser }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isOpen, setisOpen] = useState(false);
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
   return (
-    <Nav>
-      <NavContainer>
-        <Mobileicon onClick={() => setisOpen(!isOpen)}>
-          <MenuRounded sx={{ color: "inherit" }} />
-        </Mobileicon>
-        <NavLogo to="/">
-          <Logo src={LogoImg} />
-          DailyFit
-        </NavLogo>
+  <Nav>
+    <NavContainer>
+      {/* Mobile Menu Icon */}
+      <Mobileicon onClick={() => setisOpen(!isOpen)}>
+        <MenuRounded sx={{ color: "inherit" }} />
+      </Mobileicon>
 
-        <MobileMenu isOpen={isOpen}>
-          <Navlink to="/">Dashboard</Navlink>
-          <Navlink to="/workouts">Workouts</Navlink>
-          <Navlink to="/contact">Contact</Navlink>
-        </MobileMenu>
+      {/* Logo */}
+      <NavLogo to="/">
+        <Logo src={LogoImg} />
+        DailyFit
+      </NavLogo>
 
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={isOpen}>
+        <Navlink to="/">Dashboard</Navlink>
+        <Navlink to="/workouts">Workouts</Navlink>
+        <Navlink to="/contact">Contact</Navlink>
+      </MobileMenu>
+
+      {/* Navigation Items for Admin vs Regular Users */}
+      {currentUser?.name === "admin" ? (
+        <NavItems>
+          <Navlink to="/admin">Admin Dashboard</Navlink>
+        </NavItems>
+      ) : (
         <NavItems>
           <Navlink to="/">Dashboard</Navlink>
           <Navlink to="/workouts">Workouts</Navlink>
-
           <Navlink to="/contact">Contact</Navlink>
         </NavItems>
+      )}
 
-        <UserContainer>
-          <Avatar src={currentUser?.img}>{currentUser?.name[0]}</Avatar>
-          <TextButton onClick={() => dispatch(logout())}>Logout</TextButton>
-        </UserContainer>
-      </NavContainer>
-    </Nav>
+      {/* User Container */}
+      <UserContainer>
+        <Avatar src={currentUser?.img}>{currentUser?.name?.[0]}</Avatar>
+        <TextButton onClick={handleLogout}>Logout</TextButton>
+      </UserContainer>
+    </NavContainer>
+  </Nav>
+
   );
 };
 
