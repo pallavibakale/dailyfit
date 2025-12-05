@@ -162,4 +162,3 @@ For support, please use the Contact page in the application or open an issue in 
 
 ---
 
-**Note**: This is an educational project developed as part of SE coursework at Purdue University.
